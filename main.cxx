@@ -1,8 +1,8 @@
 #include <iostream>
 
-int main(){
-  char out[20] = "Server is listening";
+#include "main.h"
+#include "server.h"
 
-  std::cout << out;
+int main(){
   return 0;
 }

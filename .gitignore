@@ -3,3 +3,4 @@ CMakeFiles/
 *.cmake
 bin/
 Makefile
+*.a
