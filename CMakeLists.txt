@@ -1,4 +1,7 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 3.1)
+
+set (CMAKE_CXX_STANDARD 11)
+
 project (HTTPServer)
 
 set (HTTPServer_VERSION_MAJOR 0)
@@ -11,20 +14,20 @@ include_directories("${PROJECT_BINARY_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}")
 
 ## Libraries
+add_library(Server server.cxx)
 add_library(Socket socket.cxx)
 add_library(Debug debug.cxx)
-add_library(Server server.cxx)
 
-set (EXTRA_LIBS ${EXTRA_LIBS} Socket Debug Server)
+set (EXTRA_LIBS ${EXTRA_LIBS} Server Socket Debug)
 
 add_executable (HTTPServer main.cxx)
 target_link_libraries (HTTPServer ${EXTRA_LIBS})
 
+install (TARGETS Server DESTINATION bin)
 install (TARGETS Socket DESTINATION bin)
 install (TARGETS Debug DESTINATION bin)
-install (TARGETS Server DESTINATION bin)
 install (TARGETS HTTPServer DESTINATION bin)
 
-install (FILES Socket.h DESTINATION include)
-install (FILES Debug.h DESTINATION include)
-install (FILES Server.h DESTINATION include)
+install (FILES server.h DESTINATION include)
+install (FILES socket.h DESTINATION include)
+install (FILES debug.h DESTINATION include)
