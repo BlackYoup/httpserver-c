@@ -1,5 +1,6 @@
 #include "socket.h"
 #include <unistd.h>
+#include "HTTPRequest.h"
 
 void Socket::init(char const *port){
   createSocket(port)
@@ -152,7 +153,7 @@ Socket* Socket::receiveDataFromClient(){
   ssize_t received_bytes = recv(this->client, data, data_length, 0);
 
   if(received_bytes == 0){
-    std::sprintf(this->strError, "Seems like client closed the connection or don't send any data");
+    std::sprintf(this->strError, "Seems like client closed the connection or didn't send any data");
     this->errorCode = -1;
     return this;
   } else if(received_bytes == -1){
@@ -161,8 +162,7 @@ Socket* Socket::receiveDataFromClient(){
     return this;
   }
 
-  d.log(DEBUG, "Received", received_bytes, "bytes from client");
-  d.log(DEBUG, "Data is:", "\n", data);
+  HTTPRequest req(data);
 
   return this;
 };

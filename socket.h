@@ -1,7 +1,13 @@
+#ifndef HTTP_SOCKET_H
+#define HTTP_SOCKET_H
+
 #include <sys/socket.h>
 #include <cstring>
 #include <netdb.h>
 #include "debug.h"
+#include "server.h"
+
+typedef void (Server::*Callback)();
 
 class Socket{
   private:
@@ -26,3 +32,5 @@ class Socket{
   public:
     void init(char const *);
 };
+
+#endif

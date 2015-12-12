@@ -21,6 +21,7 @@ class Debug{
   public:
     template <typename T, typename... Args> void log(DEBUG_LEVEL, T, Args...);
     template <typename T> void log(DEBUG_LEVEL, T);
+    template <typename T, typename... Args> void log(T, Args...);
 };
 
 template <typename T, typename... Args>
@@ -33,6 +34,11 @@ template <typename T>
 void Debug::log(DEBUG_LEVEL level, T message){
   printHeader(level);
   printBody(message);
+};
+
+template<typename T, typename... Args>
+void Debug::log(T message, Args... args){
+  log(DEBUG, message, args...);
 };
 
 template <typename T, typename... Args>
