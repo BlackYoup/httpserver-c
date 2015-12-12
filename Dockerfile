@@ -5,10 +5,6 @@ RUN pacman -Syu --noconfirm
 RUN pacman-db-upgrade
 RUN pacman -S cmake gcc make --noconfirm
 
-RUN cmake --version
-RUN gcc --version
-RUN make --version
-
 ADD . /source
 WORKDIR /source
 
