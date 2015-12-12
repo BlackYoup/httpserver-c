@@ -6,6 +6,7 @@
 #include <netdb.h>
 #include "debug.h"
 #include "server.h"
+#include "HTTPRequest.h"
 
 typedef void (Server::*Callback)();
 
@@ -20,14 +21,15 @@ class Socket{
     Socket* createSocket(char const*);
     Socket* listenConnections();
     Socket* acceptClients();
-    Socket* receiveDataFromClient();
-    Socket* sendBackResponse();
+    HTTPRequest receiveDataFromClient();
+    Socket* sendBackResponse(char*);
     Socket* disconnectClient();
     Socket* error();
 
     int errorCode = 0;
     char strError[128];
     int client;
+    char response[2048];
 
   public:
     void init(char const *);

@@ -15,12 +15,13 @@ include_directories("${PROJECT_SOURCE_DIR}")
 
 ## Libraries
 add_library(Utils utils.cxx)
+add_library(HTTPResponse HTTPResponse.cxx)
 add_library(HTTPRequest HTTPRequest.cxx)
 add_library(Server server.cxx)
 add_library(Socket socket.cxx)
 add_library(Debug debug.cxx)
 
-set (EXTRA_LIBS ${EXTRA_LIBS} Server Socket Debug HTTPRequest Utils)
+set (EXTRA_LIBS ${EXTRA_LIBS} Server Socket Debug HTTPRequest HTTPResponse Utils)
 
 add_executable (HTTPServer main.cxx)
 add_executable (Tests tests.cxx)
@@ -28,6 +29,7 @@ target_link_libraries (HTTPServer ${EXTRA_LIBS})
 target_link_libraries (Tests ${EXTRA_LIBS})
 
 install (TARGETS Utils DESTINATION bin)
+install (TARGETS HTTPResponse DESTINATION bin)
 install (TARGETS HTTPRequest DESTINATION bin)
 install (TARGETS Server DESTINATION bin)
 install (TARGETS Socket DESTINATION bin)
@@ -35,6 +37,7 @@ install (TARGETS Debug DESTINATION bin)
 install (TARGETS HTTPServer DESTINATION bin)
 
 install (FILES utils.h DESTINATION include)
+install (FILES HTTPResponse.h DESTINATION include)
 install (FILES HTTPRequest.h DESTINATION include)
 install (FILES server.h DESTINATION include)
 install (FILES socket.h DESTINATION include)

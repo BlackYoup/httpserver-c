@@ -1,16 +1,21 @@
 #include "socket.h"
 #include <unistd.h>
-#include "HTTPRequest.h"
+
+#include "HTTPResponse.h"
 
 void Socket::init(char const *port){
-  createSocket(port)
+  HTTPRequest req = createSocket(port)
   ->bindSocket()
   ->listenConnections()
   ->acceptClients()
-  ->receiveDataFromClient()
-  ->sendBackResponse()
-  ->disconnectClient()
-  ->error();
+  ->receiveDataFromClient();
+
+  HTTPResponse res(&req);
+
+  this
+    ->sendBackResponse(res.getResponse())
+    ->disconnectClient()
+    ->error();
 };
 
 Socket* Socket::createSocket(char const *port){
@@ -140,9 +145,9 @@ Socket* Socket::acceptClients(){
   return this;
 };
 
-Socket* Socket::receiveDataFromClient(){
+HTTPRequest Socket::receiveDataFromClient(){
   if(this->errorCode != 0){
-    return this;
+    //return this;
   }
 
   d.log(DEBUG, "Starting to receive data from client...");
@@ -155,31 +160,31 @@ Socket* Socket::receiveDataFromClient(){
   if(received_bytes == 0){
     std::sprintf(this->strError, "Seems like client closed the connection or didn't send any data");
     this->errorCode = -1;
-    return this;
+    //TODO handle errors;
+    //return this;
   } else if(received_bytes == -1){
     std::sprintf(this->strError, "Error receiving data from client: %s", strerror(errno));
     this->errorCode = received_bytes;
-    return this;
+    //TODO handle errors;
+    //return this;
   }
 
   HTTPRequest req(data);
-
-  return this;
+  return req;
 };
 
-Socket* Socket::sendBackResponse(){
+Socket* Socket::sendBackResponse(char *data){
   if(this->errorCode != 0){
     return this;
   }
 
-  char buffer[] = "Hello back :)";
-  int sendStatus = send(this->client, buffer, sizeof(buffer), 0);
+  int sendStatus = send(this->client, data, sizeof(data), 0);
 
   if(sendStatus == -1){
     d.log(ERROR, "Can't send back data to client", strerror(errno));
   }
 
-  d.log(DEBUG, "Sent response to client:", "\n", buffer);
+  d.log(DEBUG, "Sent response to client:", "\n", data);
 
   return this;
 };
