@@ -4,6 +4,8 @@
 #include "server.h"
 #include "debug.h"
 
+#include <cstring>
+
 int main(){
   Server srv;
   srv.start();

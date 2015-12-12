@@ -36,6 +36,7 @@ class HTTPRequest{
     char *extractPath(char*);
   public:
     HTTPRequest(char*);
+    HTTP_REQUEST getRequest();
 };
 
 #endif

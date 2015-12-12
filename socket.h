@@ -8,8 +8,6 @@
 #include "server.h"
 #include "HTTPRequest.h"
 
-typedef void (Server::*Callback)();
-
 class Socket{
   private:
     int socketfd;

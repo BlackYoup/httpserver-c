@@ -169,6 +169,10 @@ HTTPRequest Socket::receiveDataFromClient(){
     //return this;
   }
 
+  for(size_t i = 0; i < strlen(data); i++){
+    d.log(data[i], (int)data[i]);
+  }
+
   HTTPRequest req(data);
   return req;
 };
@@ -178,7 +182,7 @@ Socket* Socket::sendBackResponse(char *data){
     return this;
   }
 
-  int sendStatus = send(this->client, data, sizeof(data), 0);
+  int sendStatus = send(this->client, data, strlen(data) + 1, 0);
 
   if(sendStatus == -1){
     d.log(ERROR, "Can't send back data to client", strerror(errno));

@@ -121,3 +121,7 @@ map<char*, char*> HTTPRequest::parseQueryString(char *url){
     return ret;
   }
 };
+
+HTTP_REQUEST HTTPRequest::getRequest(){
+  return this->req;
+};
