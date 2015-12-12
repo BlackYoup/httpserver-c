@@ -19,14 +19,14 @@ class Socket{
     Socket* createSocket(char const*);
     Socket* listenConnections();
     Socket* acceptClients();
-    HTTPRequest receiveDataFromClient();
-    Socket* sendBackResponse(char*);
-    Socket* disconnectClient();
+    HTTPRequest receiveDataFromClient(int);
+    Socket* sendBackResponse(int, char*);
+    Socket* disconnectClient(int);
     Socket* error();
+    void onClient(int);
 
     int errorCode = 0;
     char strError[128];
-    int client;
     char response[2048];
 
   public:

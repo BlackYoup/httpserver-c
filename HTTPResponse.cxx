@@ -12,6 +12,9 @@ const int CR = 0x0D;
 const int SP = 0x20;
 
 HTTPResponse::HTTPResponse(HTTPRequest *request){
+  // TODO: berk
+  memset(this->response, '\0', 2048);
+
   this->req = request;
 
   this->res.statusLine = this->makeStatusLine();
@@ -47,12 +50,10 @@ void HTTPResponse::makeResponse(){
 
   this->response[head] = CR;
   this->response[head + 1] = LF;
+  this->response[head + 2] = '\0';
 
   strcat(this->response, this->res.body);
   this->response[strlen(this->response) - 1] = '\0';
-
-  /*d.log("RESPONSE", this->response);
-  */
 };
 
 char *HTTPResponse::makeStatusLine(){

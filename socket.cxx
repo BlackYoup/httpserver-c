@@ -4,18 +4,11 @@
 #include "HTTPResponse.h"
 
 void Socket::init(char const *port){
-  HTTPRequest req = createSocket(port)
-  ->bindSocket()
-  ->listenConnections()
-  ->acceptClients()
-  ->receiveDataFromClient();
-
-  HTTPResponse res(&req);
-
   this
-    ->sendBackResponse(res.getResponse())
-    ->disconnectClient()
-    ->error();
+    ->createSocket(port)
+    ->bindSocket()
+    ->listenConnections()
+    ->acceptClients();
 };
 
 Socket* Socket::createSocket(char const *port){
@@ -128,24 +121,39 @@ Socket* Socket::acceptClients(){
   struct sockaddr_storage client_info;
   socklen_t client_info_size = sizeof(client_info);
 
-  this->client = accept(Socket::socketfd,
-      (struct sockaddr *) &client_info,
-      &client_info_size);
+  int client;
 
-  d.log(DEBUG, "Accepting client...");
+  while(true){
+    client = accept(Socket::socketfd,
+        (struct sockaddr *) &client_info,
+        &client_info_size);
 
-  if(this->client == -1){
-    std::sprintf(this->strError, "Error connecting to client: %s", strerror(errno));
-    this->errorCode = this->client;
-    return this;
+    d.log(DEBUG, "Accepting client...");
+
+    if(client == -1){
+      std::sprintf(this->strError, "Error connecting to client: %s", strerror(errno));
+      this->errorCode = client;
+      return this;
+    }
+
+    d.log(DEBUG, "Client connected !");
+    this->onClient(client);
   }
-
-  d.log(DEBUG, "Client connected !");
 
   return this;
 };
 
-HTTPRequest Socket::receiveDataFromClient(){
+void Socket::onClient(int client){
+  HTTPRequest req = this->receiveDataFromClient(client);
+  HTTPResponse res(&req);
+
+  this
+    ->sendBackResponse(client, res.getResponse())
+    ->disconnectClient(client)
+    ->error();
+};
+
+HTTPRequest Socket::receiveDataFromClient(int client){
   if(this->errorCode != 0){
     //return this;
   }
@@ -155,7 +163,7 @@ HTTPRequest Socket::receiveDataFromClient(){
   const int data_length = 2048;
   char data[data_length];
 
-  ssize_t received_bytes = recv(this->client, data, data_length, 0);
+  ssize_t received_bytes = recv(client, data, data_length, 0);
 
   if(received_bytes == 0){
     std::sprintf(this->strError, "Seems like client closed the connection or didn't send any data");
@@ -169,20 +177,16 @@ HTTPRequest Socket::receiveDataFromClient(){
     //return this;
   }
 
-  for(size_t i = 0; i < strlen(data); i++){
-    d.log(data[i], (int)data[i]);
-  }
-
   HTTPRequest req(data);
   return req;
 };
 
-Socket* Socket::sendBackResponse(char *data){
+Socket* Socket::sendBackResponse(int client, char *data){
   if(this->errorCode != 0){
     return this;
   }
 
-  int sendStatus = send(this->client, data, strlen(data) + 1, 0);
+  int sendStatus = send(client, data, strlen(data) + 1, 0);
 
   if(sendStatus == -1){
     d.log(ERROR, "Can't send back data to client", strerror(errno));
@@ -193,12 +197,12 @@ Socket* Socket::sendBackResponse(char *data){
   return this;
 };
 
-Socket* Socket::disconnectClient(){
+Socket* Socket::disconnectClient(int client){
   if(this->errorCode != 0){
     return this;
   }
 
-  close(this->client);
+  close(client);
   d.log(DEBUG, "Client deconnected by server");
 
   return this;
