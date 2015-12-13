@@ -145,12 +145,20 @@ Socket* Socket::acceptClients(){
 
 void Socket::onClient(int client){
   HTTPRequest req = this->receiveDataFromClient(client);
-  HTTPResponse res(&req);
 
-  this
-    ->sendBackResponse(client, res.getResponse())
-    ->disconnectClient(client)
-    ->error();
+  if(req.isRequestValid()){
+    HTTPResponse res(&req);
+
+    this
+      ->sendBackResponse(client, res.getResponse())
+      ->disconnectClient(client)
+      ->error();
+  } else{
+    Debug d;
+    d.log("DISCONNECT CLIENT");
+    this
+      ->disconnectClient(client);
+  }
 };
 
 HTTPRequest Socket::receiveDataFromClient(int client){
@@ -176,6 +184,8 @@ HTTPRequest Socket::receiveDataFromClient(int client){
     //TODO handle errors;
     //return this;
   }
+
+  d.log(DEBUG, "GOT DATA FROM CLIENT\n", data);
 
   HTTPRequest req(data);
   return req;

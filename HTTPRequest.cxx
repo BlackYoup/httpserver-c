@@ -13,7 +13,16 @@ HTTPRequest::HTTPRequest(char*plainRequest){
   this->rawReq = plainRequest;
   map<char*, char*> parsedHTTPRequest = this->parseRequest(plainRequest);
 
+  if(!this->HTTPValid){
+    return;
+  }
+
   vector<char*> headers = this->parseHTTPInfo(parsedHTTPRequest[(char*)"http"]);
+
+  if(!this->HTTPValid){
+    return;
+  }
+
   this->req.headers = this->parseHeaders(headers);
   this->req.queryString = this->parseQueryString(this->req.rawUrl);
 
@@ -36,6 +45,7 @@ map<char*, char*> HTTPRequest::parseRequest(char *req){
   }
 
   if(emptyLine == 0){
+    this->HTTPValid = false;
     d.log(ERROR, "Couldn't find a separator, aborting...");
     return ret;
   }
@@ -59,8 +69,14 @@ map<char*, char*> HTTPRequest::parseRequest(char *req){
 
 vector<char*> HTTPRequest::parseHTTPInfo(char *headers){
   Debug d;
-  vector<char*> splitLB = Utils::split(headers, '\n');
-  vector<char*> httpInfo = Utils::split(splitLB[0], ' ');
+  vector<char*> splitLB = Utils::split(headers, '\n', 0);
+  vector<char*> httpInfo = Utils::split(splitLB[0], ' ', 0);
+
+  if(httpInfo.size() != 3){
+    d.log("GOT INVALID HTTP REQUEST, KILLING CLIENT");
+    this->HTTPValid = false;
+    return splitLB;
+  }
 
   this->req.verb = getHTTPVerb(httpInfo[0]);
   this->req.rawUrl = httpInfo[1];
@@ -90,7 +106,7 @@ map<char*, char*> HTTPRequest::parseHeaders(vector<char*> headers){
   Debug d;
 
   for(header = headers.begin(); header != headers.end(); ++header){
-    vector<char*> tmp = Utils::split(*header, ':');
+    vector<char*> tmp = Utils::split(*header, ':', 1);
     ret.insert(pair<char*, char*>(tmp[0], tmp[1]));
   }
 
@@ -99,7 +115,7 @@ map<char*, char*> HTTPRequest::parseHeaders(vector<char*> headers){
 
 map<char*, char*> HTTPRequest::parseQueryString(char *url){
   map<char*, char*> ret;
-  vector<char*> qs = Utils::split(url, '?');
+  vector<char*> qs = Utils::split(url, '?', 1);
 
   this->req.url = qs[0];
 
@@ -108,11 +124,11 @@ map<char*, char*> HTTPRequest::parseQueryString(char *url){
   // If there is a QueryString
   if(qs.size() == 2){
     d.log("GOT QUERY STRING");
-    vector<char*> params = Utils::split(qs[1], '&');
+    vector<char*> params = Utils::split(qs[1], '&', 0);
     vector<char*>::iterator param;
     for(param = params.begin(); param != params.end(); ++param){
       // TODO: handle multiple values for same key
-      vector<char*> tmp = Utils::split(*param, '=');
+      vector<char*> tmp = Utils::split(*param, '=', 1);
       d.log("QS: PARAM:", tmp[0], "VALUE:", tmp[1]);
       ret.insert(pair<char*, char*>(tmp[0], tmp[1]));
     }
@@ -124,4 +140,8 @@ map<char*, char*> HTTPRequest::parseQueryString(char *url){
 
 HTTP_REQUEST HTTPRequest::getRequest(){
   return this->req;
+};
+
+bool HTTPRequest::isRequestValid(){
+  return this->HTTPValid;
 };

@@ -5,7 +5,7 @@
 
 class Utils{
   public:
-    static std::vector<char*> split(char*, char);
+    static std::vector<char*> split(char*, char, int);
     static char *strcpy(char*, char*, int, int);
 };
 

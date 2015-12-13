@@ -20,7 +20,7 @@ void testOwnMethods(){
 void testUtilsMethods(){
   printf("Testing Utils methods...\n");
 
-  std::vector<char *> x = Utils::split((char*)"Some spaces needed", ' ');
+  std::vector<char *> x = Utils::split((char*)"Some spaces needed", ' ', 0);
   Test::assert(x.size(), (std::vector<char *>::size_type)3);
 
   char destination[10];

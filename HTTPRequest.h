@@ -34,9 +34,13 @@ class HTTPRequest{
     std::vector<char*> parseHTTPInfo(char*);
     HTTP_VERB getHTTPVerb(char*);
     char *extractPath(char*);
+
+    // TODO: better handling of invalid HTTP requests
+    bool HTTPValid = true;
   public:
     HTTPRequest(char*);
     HTTP_REQUEST getRequest();
+    bool isRequestValid();
 };
 
 #endif

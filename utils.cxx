@@ -4,10 +4,11 @@
 #include <stdio.h>
 
 #include "utils.h"
+#include "debug.h"
 
 using std::vector;
 
-vector<char *> Utils::split(char *str, char del){
+vector<char *> Utils::split(char *str, char del, int limit){
   vector<char *> splittedStr;
 
   const size_t length = strlen(str);
@@ -15,10 +16,21 @@ vector<char *> Utils::split(char *str, char del){
 
   char buffer[length] = {'\0'};
   int bufferEntry = 0;
+  int found = 0;
+  bool limitReached;
   size_t lastElement = length - 1;
 
   for(; count < length; count++, bufferEntry++){
-    if(str[count] == del || count == lastElement){
+    bool match = str[count] == del;
+
+    // TODO: too many cpu operations if no limit
+    if(limit <= 0){
+      limitReached = false;
+    } else if(limit > 0){
+      limitReached = found < limit;
+    }
+
+    if((!limitReached && match) || count == lastElement){
       if(count == lastElement){
         buffer[bufferEntry] = str[count];
       }
@@ -33,6 +45,9 @@ vector<char *> Utils::split(char *str, char del){
       bufferEntry = -1;
       memset(buffer, '\0', length);
     } else{
+      if(match && !limitReached){
+        found++;
+      }
       buffer[bufferEntry] = str[count];
     }
   }
